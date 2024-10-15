@@ -10,6 +10,7 @@ use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Htmlable;
 use JaOcero\RadioDeck\Contracts\HasDescriptions;
 use JaOcero\RadioDeck\Contracts\HasIcons;
+use JaOcero\RadioDeck\Contracts\HasPricing;
 use JaOcero\RadioDeck\Intermediary\IntermediaryRadio;
 use JaOcero\RadioDeck\Traits\HasDirection;
 use JaOcero\RadioDeck\Traits\HasExtraCardsAttributes;
@@ -35,11 +36,8 @@ class RadioDeck extends IntermediaryRadio
     protected array|Arrayable|Closure|string|null $icons = null;
 
     protected array|Arrayable|Closure|string $descriptions = [];
-    protected array|Arrayable|Closure|string $pricings = [];
-    protected array|Arrayable|Closure|string $trials = [];
 
-
-
+    protected array|Arrayable|Closure|string|null $pricings = null;
 
     protected bool|Closure $isMultiple = false;
 
@@ -71,6 +69,13 @@ class RadioDeck extends IntermediaryRadio
         return $this;
     }
 
+    public function pricings(array|Arrayable|string|Closure|null $pricings): static
+    {
+        $this->pricings = $pricings;
+
+        return $this;
+    }
+
     public function descriptions(array|Arrayable|string|Closure $descriptions): static
     {
         $this->descriptions = $descriptions;
@@ -95,6 +100,44 @@ class RadioDeck extends IntermediaryRadio
         }
 
         return false;
+    }
+
+    public function hasPricing($value): bool
+    {
+        if ($value !== null && ! empty($this->getPricing())) {
+            return array_key_exists($value, $this->getPricing());
+        }
+
+        return false;
+    }
+
+    public function getPricing(): mixed
+    {
+        $pricings = $this->evaluate($this->pricings);
+
+        $enum = $pricings;
+
+        if (is_string($enum) && enum_exists($enum)) {
+            if (is_a($enum, HasPricing::class, allow_string: true)) {
+                return collect($enum::cases())
+                    ->mapWithKeys(fn ($case) => [
+                        ($case?->value ?? $case->name) => $case->getPricing() ?? $case->name,
+                    ])
+                    ->all();
+            }
+
+            return collect($enum::cases())
+                ->mapWithKeys(fn ($case) => [
+                    ($case?->value ?? $case->name) => $case->name,
+                ])
+                ->all();
+        }
+
+        if ($pricings instanceof Arrayable) {
+            $pricings = $pricings->toArray();
+        }
+
+        return $pricings;
     }
 
     /**
@@ -165,57 +208,6 @@ class RadioDeck extends IntermediaryRadio
 
         return $descriptions;
     }
-
-    public function pricings(array|Arrayable|Closure|string $pricings): static
-    {
-        $this->pricings = $pricings;
-        return $this;
-    }
-
-    public function trials(array|Arrayable|Closure|string $trials): static
-    {
-        $this->trials = $trials;
-        return $this;
-    }
-
-    public function getPricings(): array
-    {
-        $pricings = $this->evaluate($this->pricings);
-        if ($pricings instanceof Arrayable) {
-            $pricings = $pricings->toArray();
-        }
-        return $pricings;
-    }
-
-    public function getTrials(): array
-    {
-        $trials = $this->evaluate($this->trials);
-        if ($trials instanceof Arrayable) {
-            $trials = $trials->toArray();
-        }
-        return $trials;
-    }
-
-    public function hasPricing($value): bool
-    {
-        return array_key_exists($value, $this->getPricings());
-    }
-
-    public function hasTrial($value): bool
-    {
-        return array_key_exists($value, $this->getTrials());
-    }
-
-    public function getPricing($value): string|null
-    {
-        return $this->getPricings()[$value] ?? null;
-    }
-
-    public function getTrial($value): string|null
-    {
-        return $this->getTrials()[$value] ?? null;
-    }
-
 
     public function isMultiple(): bool
     {

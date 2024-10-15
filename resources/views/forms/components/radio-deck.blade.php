@@ -30,8 +30,6 @@
                 @php
                       $hasPricing = $hasPricing($value);
                       $pricing = $getPricing($value);
-                      $hasTrial = $hasTrial($value);
-                      $trial = $getTrial($value);
                       $iconExists = $hasIcons($value);
                       $iconPosition = $getIconPosition();
                       $alignment = $getAlignment();
@@ -106,8 +104,6 @@
                             <span class="font-medium text-primary-600 mt-3 mb-3">
                    € {{ $pricing }} <span style="font-size: 10px" class="text-gray-500 dark:text-white">/ month</span>
                 </span>
-                        @endif
-                        @if($hasTrial)
                             <x-filament::badge class="mb-3" color="success">
                                 {{ $trial }}
                             </x-filament::badge>
