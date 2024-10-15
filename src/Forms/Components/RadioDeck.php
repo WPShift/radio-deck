@@ -122,7 +122,9 @@ class RadioDeck extends IntermediaryRadio
 
     public function hasPricing($value): bool
     {
-        return $this->hasKeyInArray($value, $this->getPricing());
+        $pricing = $this->getPricing();
+
+        return is_array($pricing) && array_key_exists($value, $pricing);
     }
 
     public function getPricing(): mixed
@@ -132,7 +134,9 @@ class RadioDeck extends IntermediaryRadio
 
     public function hasTrial($value): bool
     {
-        return $this->hasKeyInArray($value, $this->getTrial());
+        $trial = $this->getTrial();
+
+        return is_array($trial) && array_key_exists($value, $trial);
     }
 
     public function getTrial(): mixed

@@ -15,104 +15,100 @@
         @foreach ($getOptions() as $value => $label)
             @php
                 $shouldOptionBeDisabled = $isDisabled || $isOptionDisabled($value, $label);
+
+                // Get whether pricing and trial exist for this option
+                $pricingExist = $hasPricing($value);
+                $trialExist = $hasTrial($value);
+
+                // Get the actual pricing and trial data for this option
+                $pricing = $pricingExist ? $getPricing($value) : null;
+                $trial = $trialExist ? $getTrial($value) : null;
+
+                // Other variables like icons and descriptions
+                $iconExists = $hasIcons($value);
+                $icon = $iconExists ? $getIcon($value) : null;
+                $descriptionExists = $hasDescription($value);
+                $description = $descriptionExists ? $getDescription($value) : null;
             @endphp
 
             <label class="flex cursor-pointer gap-x-3">
                 <input @disabled($shouldOptionBeDisabled) id="{{ $id }}-{{ $value }}"
-                   @if (! $isMultiple)
-                       name="{{ $id }}"
-                   @endif
-                    type="{{  $isMultiple ? 'checkbox' : 'radio' }}"
-                    value="{{ $value }}" wire:loading.attr="disabled"
-                    {{ $applyStateBindingModifiers('wire:model') }}="{{ $statePath }}"
-                    {{ $getExtraInputAttributeBag()->class(['peer hidden']) }} />
+                       @if (! $isMultiple)
+                           name="{{ $id }}"
+                       @endif
+                       type="{{  $isMultiple ? 'checkbox' : 'radio' }}"
+                       value="{{ $value }}" wire:loading.attr="disabled"
+                {{ $applyStateBindingModifiers('wire:model') }}="{{ $statePath }}"
+                {{ $getExtraInputAttributeBag()->class(['peer hidden']) }} />
 
-                @php
-                    $trialExist = $hasTrial($value);
-                    $pricingExist = $hasPricing($value);
-                    $iconExists = $hasIcons($value);
-                    $iconPosition = $getIconPosition();
-                    $alignment = $getAlignment();
-                    $direction = $getDirection();
-                    $gap = $getGap();
-                    $padding = $getPadding();
-                    $color = $getColor();
-                    $icon = $getIcon($value);
-                    $pricing = $getPricing($value);
-                    $trial = $getTrial($value);
-                    $iconSize = $getIconSize();
-                    $iconSizeSm = $getIconSizes('sm');
-                    $iconSizeMd = $getIconSizes('md');
-                    $iconSizeLg = $getIconSizes('lg');
-                    $descriptionExists = $hasDescription($value);
-                    $description = $getDescription($value);
-                @endphp
                 <div {{ $getExtraCardsAttributeBag()->class([
-                    'flex w-full text-sm leading-6 rounded-lg bg-white dark:bg-gray-900',
-                    $padding ?: 'px-4 py-2',
-                    $gap ?: 'gap-5',
-                    match ($direction) {
-                        'column' => 'flex-col',
-                        default => 'flex-row',
-                    },
-                    $iconExists
-                        ? match ($iconPosition) {
-                            IconPosition::Before, 'before' => 'justify-start',
-                            IconPosition::After, 'after' => 'justify-between flex-row-reverse',
-                            default => 'justify-start',
-                        }
-                        : 'justify-start',
-                    match ($alignment) {
-                        Alignment::Center, 'center' => 'items-center',
-                        Alignment::Start, 'start' => 'items-start',
-                        Alignment::End, 'end' => 'items-end',
-                        default => 'items-center',
-                    },
-                    'ring-1 ring-gray-200 dark:ring-gray-700 peer-checked:ring-2',
-                    'peer-disabled:bg-gray-100/50 dark:peer-disabled:bg-gray-700/50 peer-disabled:cursor-not-allowed',
-                    match ($color) {
-                        'gray' => 'peer-checked:ring-gray-600 dark:peer-checked:ring-gray-500',
-                        default
-                            => 'fi-color-custom peer-checked:ring-custom-600 dark:peer-checked:ring-custom-500',
-                    },
-                ]) }} @style([
-                    \Filament\Support\get_color_css_variables($color, shades: [600, 500]) => $color !== 'gray',
-                ])>
+            'flex w-full text-sm leading-6 rounded-lg bg-white dark:bg-gray-900',
+            $padding ?: 'px-4 py-2',
+            $gap ?: 'gap-5',
+            match ($direction) {
+                'column' => 'flex-col',
+                default => 'flex-row',
+            },
+            $iconExists
+                ? match ($iconPosition) {
+                    IconPosition::Before, 'before' => 'justify-start',
+                    IconPosition::After, 'after' => 'justify-between flex-row-reverse',
+                    default => 'justify-start',
+                }
+                : 'justify-start',
+            match ($alignment) {
+                Alignment::Center, 'center' => 'items-center',
+                Alignment::Start, 'start' => 'items-start',
+                Alignment::End, 'end' => 'items-end',
+                default => 'items-center',
+            },
+            'ring-1 ring-gray-200 dark:ring-gray-700 peer-checked:ring-2',
+            'peer-disabled:bg-gray-100/50 dark:peer-disabled:bg-gray-700/50 peer-disabled:cursor-not-allowed',
+            match ($color) {
+                'gray' => 'peer-checked:ring-gray-600 dark:peer-checked:ring-gray-500',
+                default
+                    => 'fi-color-custom peer-checked:ring-custom-600 dark:peer-checked:ring-custom-500',
+            },
+        ]) }} @style([
+            \Filament\Support\get_color_css_variables($color, shades: [600, 500]) => $color !== 'gray',
+        ])>
                     @if ($iconExists)
                         <x-filament::icon :icon="$icon" @class([
-                            'flex-shrink-0',
-                            match ($iconSize) {
-                                IconSize::Small => $iconSizeSm ?: 'h-8 w-8',
-                                'sm' => $iconSizeSm ?: 'h-8 w-8',
-                                IconSize::Medium => $iconSizeMd ?: 'h-9 w-9',
-                                'md' => $iconSizeMd ?: 'h-9 w-9',
-                                IconSize::Large => $iconSizeLg ?: 'h-10 w-10',
-                                'lg' => $iconSizeLg ?: 'h-10 w-10',
-                                default => 'h-8 w-8',
-                            },
-                            match ($color) {
-                                'gray' => 'fi-color-gray text-gray-600 dark:text-gray-500',
-                                default => 'fi-color-custom text-custom-600 dark:text-custom-500',
-                            },
-                        ]) @style([
-                            \Filament\Support\get_color_css_variables($color, shades: [600, 500]) => $color !== 'gray',
-                        ]) />
+                    'flex-shrink-0',
+                    match ($iconSize) {
+                        IconSize::Small => $iconSizeSm ?: 'h-8 w-8',
+                        'sm' => $iconSizeSm ?: 'h-8 w-8',
+                        IconSize::Medium => $iconSizeMd ?: 'h-9 w-9',
+                        'md' => $iconSizeMd ?: 'h-9 w-9',
+                        IconSize::Large => $iconSizeLg ?: 'h-10 w-10',
+                        'lg' => $iconSizeLg ?: 'h-10 w-10',
+                        default => 'h-8 w-8',
+                    },
+                    match ($color) {
+                        'gray' => 'fi-color-gray text-gray-600 dark:text-gray-500',
+                        default => 'fi-color-custom text-custom-600 dark:text-custom-500',
+                    },
+                ]) @style([
+                    \Filament\Support\get_color_css_variables($color, shades: [600, 500]) => $color !== 'gray',
+                ]) />
                     @endif
                     <div {{ $getExtraOptionsAttributeBag()->merge(['class' =>'place-items-start']) }}>
-                        <span class="font-medium text-gray-950 dark:text-white">
-                            {{ $label }}
-                        </span>
-                        @dd($hasPricing, $pricing, $hasTrial, $trial)
-                        @if($hasPricing)
+                <span class="font-medium text-gray-950 dark:text-white">
+                    {{ $label }}
+                </span>
+
+                        @if($pricingExist)
                             <span class="font-medium text-primary-600 mt-3 mb-3">
-                               € {{$pricing}} <span style="font-size: 10px" class="text-gray-500 dark:text-white">/ month</span>
-                            </span>
+                       € {{ $pricing }} <span style="font-size: 10px" class="text-gray-500 dark:text-white">/ month</span>
+                    </span>
                         @endif
-                        @if($hasTrial)
+
+                        @if($trialExist)
                             <x-filament::badge class="mb-3" color="success">
-                                {{$trial}}
+                                {{ $trial }}
                             </x-filament::badge>
                         @endif
+
                         @if ($descriptionExists)
                             <p {{ $getExtraDescriptionsAttributeBag()->merge(['class' =>'text-gray-500 dark:text-gray-400']) }}>
                                 {{ $description }}
