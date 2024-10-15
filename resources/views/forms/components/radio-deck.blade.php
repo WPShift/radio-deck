@@ -105,7 +105,7 @@
                    € {{ $pricing }} <span style="font-size: 10px" class="text-gray-500 dark:text-white">/ month</span>
                 </span>
                             <x-filament::badge class="mb-3" color="success">
-                                {{ $trial }}
+                                7 day free trial, no credit card required!
                             </x-filament::badge>
                         @endif
                         @if ($descriptionExists)
