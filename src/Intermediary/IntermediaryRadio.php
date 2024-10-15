@@ -24,6 +24,8 @@ class IntermediaryRadio extends Field implements ContractsCanDisableOptions
     use HasOptions;
 
     protected array|Arrayable|Closure|string $descriptions = [];
+    protected array|Arrayable|Closure|string $pricing = [];
+
 
     /**
      * @param  array<string | Htmlable> | Arrayable | string | Closure  $descriptions
@@ -63,6 +65,54 @@ class IntermediaryRadio extends Field implements ContractsCanDisableOptions
         }
 
         return $descriptions;
+    }
+
+    /**
+     * Set the pricing for each option.
+     *
+     * @param  array<string | Htmlable> | Arrayable | string | Closure  $pricing
+     */
+    public function pricing(array|Arrayable|string|Closure $pricing): static
+    {
+        $this->pricing = $pricing;
+
+        return $this;
+    }
+
+    /**
+     * Check if an option has pricing.
+     *
+     * @param  array-key  $value
+     */
+    public function hasPricing($value): bool
+    {
+        return array_key_exists($value, $this->getPricings());
+    }
+
+    /**
+     * Get the pricing for a specific option.
+     *
+     * @param  array-key  $value
+     */
+    public function getPricing($value): string|Htmlable|null
+    {
+        return $this->getPricings()[$value] ?? null;
+    }
+
+    /**
+     * Get all pricing data.
+     *
+     * @return array<string | Htmlable>
+     */
+    public function getPricings(): array
+    {
+        $pricing = $this->evaluate($this->pricing);
+
+        if ($pricing instanceof Arrayable) {
+            $pricing = $pricing->toArray();
+        }
+
+        return $pricing;
     }
 
     public function getDefaultState(): mixed
