@@ -102,6 +102,7 @@
                         <span class="font-medium text-gray-950 dark:text-white">
                             {{ $label }}
                         </span>
+                        @dd($hasPricing, $pricing, $hasTrial, $trial)
                         @if($hasPricing)
                             <span class="font-medium text-primary-600 mt-3 mb-3">
                                € {{$pricing}} <span style="font-size: 10px" class="text-gray-500 dark:text-white">/ month</span>
