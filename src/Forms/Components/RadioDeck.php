@@ -127,10 +127,17 @@ class RadioDeck extends IntermediaryRadio
         return is_array($pricing) && array_key_exists($value, $pricing);
     }
 
-    public function getPricing(): mixed
+    public function getPricing($value): mixed
     {
-        return $this->evaluateEnumOrArray($this->pricing, HasPricing::class);
+        $pricing = $this->evaluate($this->pricing);
+
+        if (is_array($pricing) && array_key_exists($value, $pricing)) {
+            return $pricing[$value];
+        }
+
+        return null;
     }
+
 
     public function hasTrial($value): bool
     {
@@ -139,9 +146,15 @@ class RadioDeck extends IntermediaryRadio
         return is_array($trial) && array_key_exists($value, $trial);
     }
 
-    public function getTrial(): mixed
+    public function getTrial($value): mixed
     {
-        return $this->evaluateEnumOrArray($this->trial, HasTrial::class);
+        $trial = $this->evaluate($this->trial);
+
+        if (is_array($trial) && array_key_exists($value, $trial)) {
+            return $trial[$value];
+        }
+
+        return null;
     }
 
     public function isMultiple(): bool
