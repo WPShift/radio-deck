@@ -42,8 +42,6 @@ class RadioDeck extends IntermediaryRadio
 
     protected array|Arrayable|Closure|string|null $trial = null;
 
-
-
     protected bool|Closure $isMultiple = false;
 
     protected string $view = 'radio-deck::forms.components.radio-deck';
@@ -102,48 +100,14 @@ class RadioDeck extends IntermediaryRadio
         return $this;
     }
 
-    /**
-     * @param  array-key  $value
-     */
     public function hasIcons($value): bool
     {
-        if ($value !== null && ! empty($this->getIcons())) {
-            return array_key_exists($value, $this->getIcons());
-        }
-
-        return false;
+        return $this->hasKeyInArray($value, $this->getIcons());
     }
 
-    /**
-     * @return array | Closure | null
-     */
     public function getIcons(): mixed
     {
-        $icons = $this->evaluate($this->icons);
-
-        $enum = $icons;
-
-        if (is_string($enum) && enum_exists($enum)) {
-            if (is_a($enum, HasIcons::class, allow_string: true)) {
-                return collect($enum::cases())
-                    ->mapWithKeys(fn ($case) => [
-                        ($case?->value ?? $case->name) => $case->getIcons() ?? $case->name,
-                    ])
-                    ->all();
-            }
-
-            return collect($enum::cases())
-                ->mapWithKeys(fn ($case) => [
-                    ($case?->value ?? $case->name) => $case->name,
-                ])
-                ->all();
-        }
-
-        if ($icons instanceof Arrayable) {
-            $icons = $icons->toArray();
-        }
-
-        return $icons;
+        return $this->evaluateEnumOrArray($this->icons, HasIcons::class);
     }
 
     public function getIcon($value): ?string
@@ -151,119 +115,75 @@ class RadioDeck extends IntermediaryRadio
         return $this->getIcons()[$value] ?? null;
     }
 
-    /**
-     * @return array<string | Htmlable>
-     */
     public function getDescriptions(): array
     {
-        $descriptions = $this->evaluate($this->descriptions);
-
-        $enum = $descriptions;
-
-        if (is_string($enum) && enum_exists($enum)) {
-            if (is_a($enum, HasDescriptions::class, allow_string: true)) {
-                return collect($enum::cases())
-                    ->mapWithKeys(fn ($case) => [
-                        ($case?->value ?? $case->name) => $case->getDescriptions() ?? $case->name,
-                    ])
-                    ->all();
-            }
-
-            return collect($enum::cases())
-                ->mapWithKeys(fn ($case) => [
-                    ($case?->value ?? $case->name) => $case->name,
-                ])
-                ->all();
-        }
-
-        if ($descriptions instanceof Arrayable) {
-            $descriptions = $descriptions->toArray();
-        }
-
-        return $descriptions;
+        return $this->evaluateEnumOrArray($this->descriptions, HasDescriptions::class);
     }
 
-    /**
-     * @param  array-key  $value
-     */
     public function hasPricing($value): bool
     {
-        if ($value !== null && ! empty($this->getPricing())) {
-            return array_key_exists($value, $this->getPricing());
-        }
-
-        return false;
+        return $this->hasKeyInArray($value, $this->getPricing());
     }
 
     public function getPricing(): mixed
     {
-        $pricing = $this->evaluate($this->pricing);
-
-        $enum = $pricing;
-
-        if (is_string($enum) && enum_exists($enum)) {
-            if (is_a($enum, HasPricing::class, allow_string: true)) {
-                return collect($enum::cases())
-                    ->mapWithKeys(fn ($case) => [
-                        ($case?->value ?? $case->name) => $case->getPricing() ?? $case->name,
-                    ])
-                    ->all();
-            }
-
-            return collect($enum::cases())
-                ->mapWithKeys(fn ($case) => [
-                    ($case?->value ?? $case->name) => $case->name,
-                ])
-                ->all();
-        }
-
-        if ($pricing instanceof Arrayable) {
-            $pricing = $pricing->toArray();
-        }
-
-        return $pricing;
+        return $this->evaluateEnumOrArray($this->pricing, HasPricing::class);
     }
 
     public function hasTrial($value): bool
     {
-        if ($value !== null && ! empty($this->getTrial())) {
-            return array_key_exists($value, $this->getTrial());
-        }
-
-        return false;
+        return $this->hasKeyInArray($value, $this->getTrial());
     }
 
     public function getTrial(): mixed
     {
-        $trial = $this->evaluate($this->trial);
-
-        $enum = $trial;
-
-        if (is_string($enum) && enum_exists($enum)) {
-            if (is_a($enum, HasTrial::class, allow_string: true)) {
-                return collect($enum::cases())
-                    ->mapWithKeys(fn ($case) => [
-                        ($case?->value ?? $case->name) => $case->getPricing() ?? $case->name,
-                    ])
-                    ->all();
-            }
-
-            return collect($enum::cases())
-                ->mapWithKeys(fn ($case) => [
-                    ($case?->value ?? $case->name) => $case->name,
-                ])
-                ->all();
-        }
-
-        if ($trial instanceof Arrayable) {
-            $trial = $trial->toArray();
-        }
-
-        return $trial;
+        return $this->evaluateEnumOrArray($this->trial, HasTrial::class);
     }
 
     public function isMultiple(): bool
     {
         return (bool) $this->evaluate($this->isMultiple);
+    }
+
+    /**
+     * Helper method to check if a key exists in the evaluated array
+     */
+    private function hasKeyInArray($value, $array): bool
+    {
+        if ($value !== null && ! empty($array)) {
+            return array_key_exists($value, $array);
+        }
+
+        return false;
+    }
+
+    /**
+     * Helper method to evaluate an enum or array and return the processed result.
+     */
+    private function evaluateEnumOrArray($input, string $enumClass): mixed
+    {
+        $evaluated = $this->evaluate($input);
+
+        if (is_string($evaluated) && enum_exists($evaluated)) {
+            if (is_a($evaluated, $enumClass, allow_string: true)) {
+                return collect($evaluated::cases())
+                    ->mapWithKeys(fn ($case) => [
+                        ($case?->value ?? $case->name) => $case->name,
+                    ])
+                    ->all();
+            }
+
+            return collect($evaluated::cases())
+                ->mapWithKeys(fn ($case) => [
+                    ($case?->value ?? $case->name) => $case->name,
+                ])
+                ->all();
+        }
+
+        if ($evaluated instanceof Arrayable) {
+            $evaluated = $evaluated->toArray();
+        }
+
+        return $evaluated;
     }
 }
