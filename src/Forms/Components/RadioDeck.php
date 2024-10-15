@@ -10,6 +10,8 @@ use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Htmlable;
 use JaOcero\RadioDeck\Contracts\HasDescriptions;
 use JaOcero\RadioDeck\Contracts\HasIcons;
+use JaOcero\RadioDeck\Contracts\HasPricing;
+use JaOcero\RadioDeck\Contracts\HasTrial;
 use JaOcero\RadioDeck\Intermediary\IntermediaryRadio;
 use JaOcero\RadioDeck\Traits\HasDirection;
 use JaOcero\RadioDeck\Traits\HasExtraCardsAttributes;
@@ -35,6 +37,12 @@ class RadioDeck extends IntermediaryRadio
     protected array|Arrayable|Closure|string|null $icons = null;
 
     protected array|Arrayable|Closure|string $descriptions = [];
+
+    protected array|Arrayable|Closure|string $pricing = [];
+
+    protected array|Arrayable|Closure|string $trial = [];
+
+
 
     protected bool|Closure $isMultiple = false;
 
@@ -69,6 +77,20 @@ class RadioDeck extends IntermediaryRadio
     public function descriptions(array|Arrayable|string|Closure $descriptions): static
     {
         $this->descriptions = $descriptions;
+
+        return $this;
+    }
+
+    public function pricing(array|Arrayable|string|Closure $pricing): static
+    {
+        $this->pricing = $pricing;
+
+        return $this;
+    }
+
+    public function trial(array|Arrayable|string|Closure $trial): static
+    {
+        $this->trial = $trial;
 
         return $this;
     }
@@ -159,6 +181,85 @@ class RadioDeck extends IntermediaryRadio
         }
 
         return $descriptions;
+    }
+
+    /**
+     * @param  array-key  $value
+     */
+    public function hasPricing($value): bool
+    {
+        if ($value !== null && ! empty($this->getPricing())) {
+            return array_key_exists($value, $this->getPricing());
+        }
+
+        return false;
+    }
+
+    public function getPricing(): array
+    {
+        $pricing = $this->evaluate($this->pricing);
+
+        $enum = $pricing;
+
+        if (is_string($enum) && enum_exists($enum)) {
+            if (is_a($enum, HasPricing::class, allow_string: true)) {
+                return collect($enum::cases())
+                    ->mapWithKeys(fn ($case) => [
+                        ($case?->value ?? $case->name) => $case->getPricing() ?? $case->name,
+                    ])
+                    ->all();
+            }
+
+            return collect($enum::cases())
+                ->mapWithKeys(fn ($case) => [
+                    ($case?->value ?? $case->name) => $case->name,
+                ])
+                ->all();
+        }
+
+        if ($pricing instanceof Arrayable) {
+            $pricing = $pricing->toArray();
+        }
+
+        return $pricing;
+    }
+
+    public function hasTrial($value): bool
+    {
+        if ($value !== null && ! empty($this->getTrial())) {
+            return array_key_exists($value, $this->getTrial());
+        }
+
+        return false;
+    }
+
+    public function getTrial(): array
+    {
+        $trial = $this->evaluate($this->trial);
+
+        $enum = $trial;
+
+        if (is_string($enum) && enum_exists($enum)) {
+            if (is_a($enum, HasTrial::class, allow_string: true)) {
+                return collect($enum::cases())
+                    ->mapWithKeys(fn ($case) => [
+                        ($case?->value ?? $case->name) => $case->getPricing() ?? $case->name,
+                    ])
+                    ->all();
+            }
+
+            return collect($enum::cases())
+                ->mapWithKeys(fn ($case) => [
+                    ($case?->value ?? $case->name) => $case->name,
+                ])
+                ->all();
+        }
+
+        if ($trial instanceof Arrayable) {
+            $trial = $trial->toArray();
+        }
+
+        return $trial;
     }
 
     public function isMultiple(): bool

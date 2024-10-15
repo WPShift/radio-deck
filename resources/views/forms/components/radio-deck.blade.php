@@ -28,6 +28,8 @@
                     {{ $getExtraInputAttributeBag()->class(['peer hidden']) }} />
 
                 @php
+                    $trialExist = $hasTrial($value);
+                    $pricingExist = $hasPricing($value);
                     $iconExists = $hasIcons($value);
                     $iconPosition = $getIconPosition();
                     $alignment = $getAlignment();
@@ -36,6 +38,8 @@
                     $padding = $getPadding();
                     $color = $getColor();
                     $icon = $getIcon($value);
+                    $pricing = $getPricing($value);
+                    $trial = $getTrial($value);
                     $iconSize = $getIconSize();
                     $iconSizeSm = $getIconSizes('sm');
                     $iconSizeMd = $getIconSizes('md');
@@ -98,7 +102,16 @@
                         <span class="font-medium text-gray-950 dark:text-white">
                             {{ $label }}
                         </span>
-
+                        @if($hasPricing)
+                            <span class="font-medium text-primary-600 mt-3 mb-3">
+                               € {{$pricing}} <span style="font-size: 10px" class="text-gray-500 dark:text-white">/ month</span>
+                            </span>
+                        @endif
+                        @if($hasTrial)
+                            <x-filament::badge class="mb-3" color="success">
+                                {{$trial}}
+                            </x-filament::badge>
+                        @endif
                         @if ($descriptionExists)
                             <p {{ $getExtraDescriptionsAttributeBag()->merge(['class' =>'text-gray-500 dark:text-gray-400']) }}>
                                 {{ $description }}
