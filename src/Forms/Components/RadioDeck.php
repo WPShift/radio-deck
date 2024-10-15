@@ -38,9 +38,9 @@ class RadioDeck extends IntermediaryRadio
 
     protected array|Arrayable|Closure|string $descriptions = [];
 
-    protected array|Arrayable|Closure|string $pricing = [];
+    protected array|Arrayable|Closure|string|null $pricing = null;
 
-    protected array|Arrayable|Closure|string $trial = [];
+    protected array|Arrayable|Closure|string|null $trial = null;
 
 
 
@@ -81,14 +81,14 @@ class RadioDeck extends IntermediaryRadio
         return $this;
     }
 
-    public function pricing(array|Arrayable|string|Closure $pricing): static
+    public function pricing(array|Arrayable|string|Closure|null $pricing): static
     {
         $this->pricing = $pricing;
 
         return $this;
     }
 
-    public function trial(array|Arrayable|string|Closure $trial): static
+    public function trial(array|Arrayable|string|Closure|null $trial): static
     {
         $this->trial = $trial;
 
@@ -195,7 +195,7 @@ class RadioDeck extends IntermediaryRadio
         return false;
     }
 
-    public function getPricing(): array
+    public function getPricing(): mixed
     {
         $pricing = $this->evaluate($this->pricing);
 
@@ -233,7 +233,7 @@ class RadioDeck extends IntermediaryRadio
         return false;
     }
 
-    public function getTrial(): array
+    public function getTrial(): mixed
     {
         $trial = $this->evaluate($this->trial);
 
