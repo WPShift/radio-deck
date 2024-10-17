@@ -23,7 +23,7 @@
     >
         @foreach ($getOptions() as $value => $label)
             @php
-                $shouldOptionBeDisabled = $isDisabled || $isOptionDisabled($value);
+                $shouldOptionBeDisabled = $isDisabled || $isOptionDisabled($value, $label);
 
                 $pricing = $getPricing($value);
                 $iconExists = $hasIcons($value);

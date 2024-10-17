@@ -125,7 +125,7 @@ class RadioDeck extends IntermediaryRadio
         return $this->evaluate($this->disabledReason);
     }
 
-    public function isOptionDisabled($value): bool
+    public function isOptionDisabled($value, string $label): bool
     {
         return in_array($value, $this->getDisabledOptions());
     }
