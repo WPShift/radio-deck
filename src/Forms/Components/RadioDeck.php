@@ -38,8 +38,7 @@ class RadioDeck extends IntermediaryRadio
 
     protected array|Arrayable|Closure|string $pricing = [];
 
-
-
+    protected array|Arrayable|Closure|string|null $colors = null;
 
     protected bool|Closure $isMultiple = false;
 
@@ -78,6 +77,20 @@ class RadioDeck extends IntermediaryRadio
         return $this;
     }
 
+    public function pricing(array|Arrayable|string|Closure $pricing): static
+    {
+        $this->pricing = $pricing;
+
+        return $this;
+    }
+
+    public function colors(array|Arrayable|string|Closure|null $colors): static
+    {
+        $this->colors = $colors;
+
+        return $this;
+    }
+
     public function multiple(bool|Closure $condition = true): static
     {
         $this->isMultiple = $condition;
@@ -86,6 +99,8 @@ class RadioDeck extends IntermediaryRadio
     }
 
     /**
+     * Determine if an icon exists for the given value.
+     *
      * @param  array-key  $value
      */
     public function hasIcons($value): bool
@@ -98,7 +113,9 @@ class RadioDeck extends IntermediaryRadio
     }
 
     /**
-     * @return array | Closure | null
+     * Get the icons array or evaluated result.
+     *
+     * @return array|Closure|null
      */
     public function getIcons(): mixed
     {
@@ -129,13 +146,20 @@ class RadioDeck extends IntermediaryRadio
         return $icons;
     }
 
+    /**
+     * Get the icon for the given value.
+     *
+     * @param  array-key  $value
+     */
     public function getIcon($value): ?string
     {
         return $this->getIcons()[$value] ?? null;
     }
 
     /**
-     * @return array<string | Htmlable>
+     * Get the descriptions array.
+     *
+     * @return array<string|Htmlable>
      */
     public function getDescriptions(): array
     {
@@ -166,14 +190,9 @@ class RadioDeck extends IntermediaryRadio
         return $descriptions;
     }
 
-    public function pricing(array|Arrayable|string|Closure $pricing): static
-    {
-        $this->pricing = $pricing;
-
-        return $this;
-    }
-
     /**
+     * Determine if pricing exists for the given value.
+     *
      * @param  array-key  $value
      */
     public function hasPricing($value): bool
@@ -182,6 +201,8 @@ class RadioDeck extends IntermediaryRadio
     }
 
     /**
+     * Get the pricing for the given value.
+     *
      * @param  array-key  $value
      */
     public function getPricing($value): ?string
@@ -190,7 +211,9 @@ class RadioDeck extends IntermediaryRadio
     }
 
     /**
-     * @return array<string | Htmlable>
+     * Get the pricing array.
+     *
+     * @return array<string|Htmlable>
      */
     public function getPricings(): array
     {
@@ -203,6 +226,35 @@ class RadioDeck extends IntermediaryRadio
         return $pricing;
     }
 
+    /**
+     * Get the colors array.
+     *
+     * @return array<string>
+     */
+    public function getColors(): array
+    {
+        $colors = $this->evaluate($this->colors);
+
+        if ($colors instanceof Arrayable) {
+            $colors = $colors->toArray();
+        }
+
+        return $colors ?? [];
+    }
+
+    /**
+     * Get the color for the given option value.
+     *
+     * @param  array-key  $value
+     */
+    public function getOptionColor($value): ?string
+    {
+        return $this->getColors()[$value] ?? $this->getColor();
+    }
+
+    /**
+     * Check if the field allows multiple selections.
+     */
     public function isMultiple(): bool
     {
         return (bool) $this->evaluate($this->isMultiple);
