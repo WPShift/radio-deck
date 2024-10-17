@@ -90,7 +90,7 @@
                         \Filament\Support\get_color_css_variables($color, shades: [600, 500]) => $color !== 'gray',
                     ])>
                     @if ($shouldOptionBeDisabled && $disabledReason)
-                        <div class="absolute top-2 right-2">
+                        <div style="right: 4px; top: 4px;" class="absolute">
                             <x-filament::badge color="primary">
                                 {{ $disabledReason }}
                             </x-filament::badge>
