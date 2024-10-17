@@ -40,6 +40,10 @@ class RadioDeck extends IntermediaryRadio
 
     protected array|Arrayable|Closure|string|null $colors = null;
 
+    protected array|Closure $disabledOptions = [];
+
+    protected string|Closure|null $disabledReason = null;
+
     protected bool|Closure $isMultiple = false;
 
     protected string $view = 'radio-deck::forms.components.radio-deck';
@@ -89,6 +93,41 @@ class RadioDeck extends IntermediaryRadio
         $this->colors = $colors;
 
         return $this;
+    }
+
+    public function disabledOptions(array|Closure $options): static
+    {
+        $this->disabledOptions = $options;
+
+        return $this;
+    }
+
+    public function disabledReason(string|Closure|null $reason): static
+    {
+        $this->disabledReason = $reason;
+
+        return $this;
+    }
+
+    public function getDisabledOptions(): array
+    {
+        $options = $this->evaluate($this->disabledOptions);
+
+        if ($options instanceof Arrayable) {
+            $options = $options->toArray();
+        }
+
+        return $options ?? [];
+    }
+
+    public function getDisabledReason(): ?string
+    {
+        return $this->evaluate($this->disabledReason);
+    }
+
+    public function isOptionDisabled($value): bool
+    {
+        return in_array($value, $this->getDisabledOptions());
     }
 
     public function multiple(bool|Closure $condition = true): static

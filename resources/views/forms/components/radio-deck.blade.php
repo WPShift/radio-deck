@@ -7,6 +7,7 @@
     $isDisabled = $isDisabled();
     $isMultiple = $isMultiple();
     $statePath = $getStatePath();
+    $disabledReason = $getDisabledReason();
 @endphp
 
 <x-dynamic-component :component="$getFieldWrapperView()" :field="$field">
@@ -22,7 +23,7 @@
     >
         @foreach ($getOptions() as $value => $label)
             @php
-                $shouldOptionBeDisabled = $isDisabled || $isOptionDisabled($value, $label);
+                $shouldOptionBeDisabled = $isDisabled || $isOptionDisabled($value);
 
                 $pricing = $getPricing($value);
                 $iconExists = $hasIcons($value);
@@ -31,7 +32,7 @@
                 $direction = $getDirection();
                 $gap = $getGap();
                 $padding = $getPadding();
-                $color = $getOptionColor($value); // Modified to get per-option color
+                $color = $getOptionColor($value);
                 $icon = $getIcon($value);
                 $iconSize = $getIconSize();
                 $iconSizeSm = $getIconSizes('sm');
@@ -57,6 +58,7 @@
 
                 <div
                     {{ $getExtraCardsAttributeBag()->class([
+                        'relative', // Added 'relative' class for positioning
                         'flex w-full text-sm leading-6 rounded-lg bg-white dark:bg-gray-900',
                         $padding ?: 'px-4 py-2',
                         $gap ?: 'gap-5',
@@ -87,6 +89,14 @@
                     @style([
                         \Filament\Support\get_color_css_variables($color, shades: [600, 500]) => $color !== 'gray',
                     ])>
+                    @if ($shouldOptionBeDisabled && $disabledReason)
+                        <div class="absolute top-2 right-2">
+                            <x-filament::badge color="primary">
+                                {{ $disabledReason }}
+                            </x-filament::badge>
+                        </div>
+                    @endif
+
                     @if ($iconExists)
                         <x-filament::icon
                             :icon="$icon"
